@@ -63,7 +63,7 @@ const BlogForm = ({ blogData }: any) => {
         if (blogData) {
             reset({
                 ...blogData,
-                publishOn: dayjs(new Date())
+                publishOn: dayjs(blogData?.publishOn)
             })
         }
     }, [reset, blogData])
