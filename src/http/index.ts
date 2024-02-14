@@ -17,7 +17,7 @@ if (typeof window !== 'undefined') {
 
 
 const api = axios.create({
-    baseURL: `https://blog-backend-9v12.onrender.com/api`,
+    baseURL: `http://localhost:4000/api/`,
     withCredentials: true,
     headers
 });

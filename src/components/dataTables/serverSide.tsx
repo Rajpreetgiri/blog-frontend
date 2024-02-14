@@ -91,7 +91,7 @@ const BlogList = () => {
     const handleDelete = async () => {
         try {
             const response = await deleteBlog({ id: selectedBlog?._id })
-            const { data } = response
+            const { data } = response.data
             console.log(data, "data")
 
         } catch (err) {
@@ -167,12 +167,12 @@ const BlogList = () => {
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                             <Button
                                 sx={{
-                                    bgcolor: row.status === "active" ? "#176cc0" : "#d32f2f",
+                                    bgcolor: row?.status === "active" ? "#176cc0" : "#d32f2f",
                                     color: "#fff",
                                     fontSize: "13px",
                                     textTransform: 'capitalize'
                                 }}>
-                                {row.status}
+                                {row?.status}
                             </Button>
                         </Box>
                     </Box>
