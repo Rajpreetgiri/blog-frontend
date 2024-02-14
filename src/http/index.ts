@@ -28,9 +28,9 @@ export const login = (data?: any) => api.post('/login', { ...data });
 // Blogs
 export const allBlogs = (params?: any) => api.get('/blogs', { params });
 export const createBlog = (data: any) => api.post('/blog-create', data);
-export const updateBlog = (data: any) => api.put(`/blog-edit/${data.slug}`, data);
-export const singleBlog = ({ slug }: { slug: string }) => api.get(`/blog/${slug}`);
-export const deleteBlog = ({ id }: { id: string }) => api.delete(`/blog/${id}`);
+export const updateBlog = (data: any) => api.put(`/blog-edit/${data._id}`, data);
+export const singleBlog = ({ id }: { id: string }) => api.get(`/blog/${id}`);
+export const deleteBlog = ({ id }: { id: string }) => api.delete(`/blog-delete/${id}`);
 
 // Interceptors
 api.interceptors.response.use(

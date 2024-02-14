@@ -19,7 +19,7 @@ function AllRoutes() {
 
                 {/* Protected Routes */}
                 <Route path="/blog-create/" element={<Suspense fallback={<div>Loading...</div>}><BlogCreate /></Suspense>} />
-                <Route path="/blog-edit/:slug" element={<Suspense fallback={<div>Loading...</div>}><BlogEdit /></Suspense>} />
+                <Route path="/blog-edit/:id" element={<Suspense fallback={<div>Loading...</div>}><BlogEdit /></Suspense>} />
 
                 {/* Auth Routes */}
                 <Route path="/login" element={<Suspense fallback={<div>Loading...</div>}><Login /></Suspense>} />

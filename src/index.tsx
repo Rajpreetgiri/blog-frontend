@@ -1,8 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
+
+// Component
 import App from './App';
+
+// Third-party
+import { BrowserRouter } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+
+// CSS
+import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
 
 const root = ReactDOM.createRoot(
@@ -12,6 +20,7 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <App />
+      <ToastContainer />
     </BrowserRouter>
   </React.StrictMode>
 );

@@ -12,12 +12,12 @@ const BlogCreate = () => {
 
   const fetchTableData = useCallback(
     async () => {
-      const response = await singleBlog({ slug: params.slug ?? "" })
+      const response = await singleBlog({ id: params.id ?? "" })
       const { data } = response.data
       setBlogData(data)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [params.slug]
+    [params.id]
   )
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const BlogCreate = () => {
   return (
     <Container sx={{ my: 4 }}>
       <Card sx={{ p: 4 }}>
-        <Typography variant='h4' component="h2" sx={{ color: "#2f2b3dc7", fontWeight: "500" }}>Edit Blog</Typography>
+        <Typography variant='h4' component="h2" sx={{ color: "#2f2b3dc7", fontWeight: "500", marginBottom: "20px" }}>Edit Blog</Typography>
         <BlogForm blogData={blogData} />
       </Card>
     </Container>

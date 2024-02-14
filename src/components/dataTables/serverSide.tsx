@@ -15,9 +15,10 @@ import ServerSideToolbar from '../utils/dataTableTools/ServerSideToolbar'
 // ** Utils Import
 import { Link } from 'react-router-dom'
 import IconifyIcon from '../icon/IconifyIcon'
-import { allBlogs, deleteBlog } from '../../http'
+import { allBlogs, createBlog, deleteBlog } from '../../http'
 import { Button } from '@mui/material'
 import moment from 'moment'
+import { toast } from 'react-toastify'
 
 type SortType = 'asc' | 'desc' | undefined | null
 
@@ -35,8 +36,10 @@ const style = {
 
 
 const BlogList = () => {
+
     // ** States
     const [selectedBlog, setSelectedBlog] = useState<any>(null)
+    const [selectedCopyBlog, setSelectedCopyBlog] = useState<any>(null)
     const [total, setTotal] = useState<number>(0)
     const [sort, setSort] = useState<SortType>('desc')
     const [rows, setRows] = useState<any[]>([])
@@ -72,6 +75,7 @@ const BlogList = () => {
         fetchTableData(sort, searchValue, sortColumn, paginationModel.page, paginationModel.pageSize)
     }, [fetchTableData, searchValue, sort, sortColumn, paginationModel])
 
+    // Handle Sorting
     const handleSortModel = (newModel: GridSortModel) => {
         if (newModel.length) {
             setSort(newModel[0].sort)
@@ -83,21 +87,54 @@ const BlogList = () => {
         }
     }
 
+    // Handle Searching
     const handleSearch = (value: string) => {
         setSearchValue(value)
         fetchTableData(sort, value, sortColumn, paginationModel.page, paginationModel.pageSize)
     }
 
+    // Handle Delete Selected Row
     const handleDelete = async () => {
         try {
             const response = await deleteBlog({ id: selectedBlog?._id })
-            const { data } = response.data
-            console.log(data, "data")
+            const { success, message } = response.data
 
-        } catch (err) {
+            toast.success(message)
+            if (success) {
+                setSelectedBlog(null)
+                fetchTableData(sort, searchValue, sortColumn, paginationModel.page, paginationModel.pageSize)
+            }
+
+        } catch (err: any) {
             console.log(err)
+            toast.error(err.message)
         }
     }
+
+    // const handleCopy
+    const handleCopy = async () => {
+        try {
+            const newData = {
+                title: selectedCopyBlog?.title,
+                content: selectedCopyBlog?.content,
+                category: selectedCopyBlog?.category,
+                featured: selectedCopyBlog?.featured,
+                status: selectedCopyBlog?.status,
+                publishOn: selectedCopyBlog?.publishOn,
+            }
+            const resp = await createBlog(newData)
+            const { success, message } = resp.data
+            toast.success(message)
+            if (success) {
+                setSelectedCopyBlog(null)
+                fetchTableData(sort, searchValue, sortColumn, paginationModel.page, paginationModel.pageSize)
+            }
+
+        } catch (err: any) {
+            console.log("err", err)
+            toast.error(err.message)
+        }
+    };
 
     const columns: GridColDef[] = [
         {
@@ -138,7 +175,7 @@ const BlogList = () => {
         },
         {
             flex: 0.25,
-            minWidth: 200,
+            minWidth: 150,
             field: 'featured',
             headerName: 'Featured',
             sortable: false,
@@ -170,7 +207,10 @@ const BlogList = () => {
                                     bgcolor: row?.status === "active" ? "#176cc0" : "#d32f2f",
                                     color: "#fff",
                                     fontSize: "13px",
-                                    textTransform: 'capitalize'
+                                    textTransform: 'capitalize',
+                                    '&:hover': {
+                                        bgcolor: row?.status === "active" ? "#176cc0" : "#d32f2f"
+                                    }
                                 }}>
                                 {row?.status}
                             </Button>
@@ -199,7 +239,7 @@ const BlogList = () => {
         },
         {
             flex: 0.25,
-            minWidth: 290,
+            minWidth: 150,
             field: 'Action',
             headerName: 'Action',
             renderCell: (params: GridRenderCellParams) => {
@@ -208,10 +248,11 @@ const BlogList = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                             <Typography noWrap variant='body2' sx={{ color: 'primary', textAlign: "center", fontWeight: 600 }}>
-                                <Link to={`/blog-edit/${row.slug}`} >
+                                <Link to={`/blog-edit/${row._id}`} >
                                     <IconifyIcon style={{ color: "#000" }} icon='tabler:edit' />
                                 </Link>
                                 <IconifyIcon onClick={() => setSelectedBlog(row)} style={{ color: "#000", marginLeft: "8px", cursor: "pointer" }} icon='tabler:trash' />
+                                <IconifyIcon onClick={() => setSelectedCopyBlog(row)} style={{ color: "#000", marginLeft: "8px", cursor: "pointer" }} icon='tabler:copy' />
                             </Typography>
                         </Box>
                     </Box>
@@ -226,6 +267,7 @@ const BlogList = () => {
                 <CardHeader title='All Blogs' />
                 <DataGrid
                     autoHeight
+                    disableColumnMenu
                     pagination
                     rows={rows}
                     rowCount={total}
@@ -251,19 +293,28 @@ const BlogList = () => {
                 />
             </Card>
             <Modal
-                open={!!selectedBlog}
+                open={!!selectedBlog || !!selectedCopyBlog}
                 onClose={() => setSelectedBlog(null)}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
                     <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Are you sure, to delete <b>{selectedBlog?.title}?</b>
+                        {
+                            !!selectedCopyBlog ? `Want to copy this ${selectedCopyBlog?.title} blog?` : `Are you sure, to delete ${selectedBlog?.title}?`
+                        }
+
                     </Typography>
 
                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: 'flex-end', marginTop: '20px' }}>
-                        <Button onClick={handleDelete} sx={{ marginRight: "4px" }} variant='contained' color='error'>Delete</Button>
-                        <Button onClick={() => setSelectedBlog(null)} variant='contained' color='primary'>Cancel</Button>
+                        {
+                            !!selectedCopyBlog ? <Button onClick={handleCopy} sx={{ marginRight: "4px" }} variant='contained' color='primary'>Copy</Button> : <Button onClick={handleDelete} sx={{ marginRight: "4px" }} variant='contained' color='error'>Delete</Button>
+                        }
+
+                        <Button onClick={() => {
+                            setSelectedCopyBlog(null)
+                            setSelectedBlog(null)
+                        }} variant='contained' color='primary'>Cancel</Button>
                     </Box>
                 </Box>
             </Modal>

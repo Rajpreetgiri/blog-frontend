@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+
+// ** Material ui
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
@@ -10,11 +12,24 @@ import RadioGroup from '@mui/material/RadioGroup';
 import Button from '@mui/material/Button';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 import { Box, FormHelperText, FormLabel, Grid, Switch } from '@mui/material';
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+// Helper
 import { createBlog, updateBlog } from '../../http';
+
+// ** Third-party
+import { toast } from "react-toastify"
+import { useNavigate } from 'react-router-dom';
+
 
 type FormValues = {
     title: string;
     featured: boolean;
+    publishOn: any;
     status: string;
     category: string;
     content: string;
@@ -23,6 +38,7 @@ type FormValues = {
 const defaultValues = {
     title: "",
     featured: false,
+    publishOn: dayjs(new Date()),
     status: "",
     category: "",
     content: "",
@@ -30,9 +46,13 @@ const defaultValues = {
 
 const BlogForm = ({ blogData }: any) => {
 
+    // ** Hooks and vars
+    const navigate = useNavigate()
+
     // ** FormData
     const {
         control,
+        watch,
         reset,
         handleSubmit,
         formState: { errors },
@@ -41,7 +61,10 @@ const BlogForm = ({ blogData }: any) => {
     // For existed data set
     useEffect(() => {
         if (blogData) {
-            reset(blogData)
+            reset({
+                ...blogData,
+                publishOn: dayjs(new Date())
+            })
         }
     }, [reset, blogData])
 
@@ -50,11 +73,15 @@ const BlogForm = ({ blogData }: any) => {
     const onSubmit: SubmitHandler<FormValues> = async (formData) => {
         try {
             const resp = blogData ? await updateBlog(formData) : await createBlog(formData)
-            const { data } = resp.data
-            console.log(data, "data")
+            const { success, message } = resp.data
+            toast.success(message)
+            if (success) {
+                navigate("/")
+            }
 
-        } catch (err) {
+        } catch (err: any) {
             console.log("err", err)
+            toast.error(err.message)
         }
     };
 
@@ -104,29 +131,23 @@ const BlogForm = ({ blogData }: any) => {
                     </FormControl>
                 </Grid>
 
-                {/* <Grid item xs={6}>
-                    <Grid item xs={6}>
-                        <FormControl fullWidth margin="normal">
-                            <FormLabel id="demo-row-dropdown-buttons-group-label">Validations</FormLabel>
-                            <Controller
-                                name="category"
-                                control={control}
-                                rules={{ required: 'Please select an option' }}
-                                render={({ field }) => (
-                                    <Select {...field} id="category" error={!!errors.category}>
-                                        <MenuItem value="">Select an option</MenuItem>
-                                        <MenuItem value="fashion">Fashion</MenuItem>
-                                        <MenuItem value="news">News</MenuItem>
-                                    </Select>
-                                )}
-                            />
-                            {!!errors.category && (
-                                <FormHelperText error>{errors.category.message}</FormHelperText>
+                <Grid item xs={6}>
+                    <FormControl fullWidth>
+                        <FormLabel id="demo-row-time-buttons-group-label">Publish On</FormLabel>
+                        <Controller
+                            name="publishOn"
+                            control={control}
+                            rules={{ required: 'Please select an option' }}
+                            render={({ field }) => (
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DemoContainer components={['DateField']}>
+                                            <DatePicker {...field} sx={{width: "100%"}} />
+                                    </DemoContainer>
+                                </LocalizationProvider>
                             )}
-                        </FormControl>
-                    </Grid>
-                </Grid> */}
-
+                        />
+                    </FormControl>
+                </Grid>
 
                 {/* Radio button */}
                 <Grid item xs={6}>
@@ -181,7 +202,7 @@ const BlogForm = ({ blogData }: any) => {
                 {/* Textarea */}
                 <Grid item xs={12}>
                     <FormControl fullWidth margin="normal">
-                        <FormLabel id="demo-row-textarea-buttons-group-label">Content</FormLabel>
+                        <FormLabel id="demo-row-textarea-buttons-group-label">Content ({(watch('content').length)} characters / 500)</FormLabel>
                         <Controller
                             name="content"
                             control={control}
