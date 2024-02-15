@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 
 // ** Material ui
@@ -48,6 +48,7 @@ const BlogForm = ({ blogData }: any) => {
 
     // ** Hooks and vars
     const navigate = useNavigate()
+    const [loading, setLoading] = useState<boolean>(false)
 
     // ** FormData
     const {
@@ -71,6 +72,7 @@ const BlogForm = ({ blogData }: any) => {
 
     // form data submition
     const onSubmit: SubmitHandler<FormValues> = async (formData) => {
+        setLoading(true)
         try {
             const resp = blogData ? await updateBlog(formData) : await createBlog(formData)
             const { success, message } = resp.data
@@ -83,6 +85,7 @@ const BlogForm = ({ blogData }: any) => {
             console.log("err", err)
             toast.error(err.message)
         }
+        setLoading(false)
     };
 
     return (
@@ -233,11 +236,11 @@ const BlogForm = ({ blogData }: any) => {
 
             <Box sx={{ marginTop: "24px", textAlign: "right" }}>
                 <Button
+                    disabled={loading}
                     sx={{ py: 1, fontSize: "14px" }}
                     type="submit"
                     variant="contained"
                     color="primary"
-
                 >
                     Submit
                 </Button>
