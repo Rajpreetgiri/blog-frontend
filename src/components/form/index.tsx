@@ -134,23 +134,6 @@ const BlogForm = ({ blogData }: any) => {
                     </FormControl>
                 </Grid>
 
-                <Grid item xs={6}>
-                    <FormControl fullWidth>
-                        <FormLabel id="demo-row-time-buttons-group-label">Publish On</FormLabel>
-                        <Controller
-                            name="publishOn"
-                            control={control}
-                            rules={{ required: 'Please select an option' }}
-                            render={({ field }) => (
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DemoContainer components={['DateField']}>
-                                            <DatePicker {...field} sx={{width: "100%"}} />
-                                    </DemoContainer>
-                                </LocalizationProvider>
-                            )}
-                        />
-                    </FormControl>
-                </Grid>
 
                 {/* Radio button */}
                 <Grid item xs={6}>
@@ -199,6 +182,24 @@ const BlogForm = ({ blogData }: any) => {
                         {!!errors.status && (
                             <FormHelperText error>{errors.status.message}</FormHelperText>
                         )}
+                    </FormControl>
+                </Grid>
+
+                <Grid item xs={6}>
+                    <FormControl fullWidth>
+                        <FormLabel id="demo-row-time-buttons-group-label">Publish On</FormLabel>
+                        <Controller
+                            name="publishOn"
+                            control={control}
+                            rules={{ required: 'Please select an option' }}
+                            render={({ field }) => (
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DemoContainer components={['DateField']}>
+                                            <DatePicker {...field} sx={{width: "100%"}} />
+                                    </DemoContainer>
+                                </LocalizationProvider>
+                            )}
+                        />
                     </FormControl>
                 </Grid>
 
